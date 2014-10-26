@@ -20,3 +20,9 @@
        while c do (format t "~a'" c))
   (print '(EOF)) ; denote where the file actually ends in output, helpful when
   (close file))  ; a file ends with a newline or some other non-printing char
+
+(with-open-file (file "./ch14_testfile.txt")
+  (fresh-line) ; always start on a newline; won't add one if already there
+  (loop for line = (read-line file nil)
+       while line do (format t "~a~%" line))
+  (princ "[EOF]"))
