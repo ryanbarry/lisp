@@ -33,3 +33,11 @@
   (let ((2nd-line (file-position file)))
     (file-position file (+ 2nd-line 2))
     (princ (read-line file nil))))
+
+(+ (with-input-from-string (s "1.23")
+     (read s))
+   2)
+
+(with-output-to-string (s)
+  (format s "hello, stringworld")
+  (princ " duh" s))
