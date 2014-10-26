@@ -26,3 +26,10 @@
   (loop for line = (read-line file nil)
        while line do (format t "~a~%" line))
   (princ "[EOF]"))
+
+(with-open-file (file "./ch14_testfile.txt")
+  (read-line file nil)
+  (fresh-line)
+  (let ((2nd-line (file-position file)))
+    (file-position file (+ 2nd-line 2))
+    (princ (read-line file nil))))
