@@ -27,4 +27,13 @@
 	 :defaults pathname)
 	pathname)))
 
-(defun list-directory ())
+(defun directory-wildcard (dirname)
+  (make-pathname
+   :name :wild
+   :type #-clisp :wild #+clisp nil ;clisp needs this to show files w/o extension
+   :defaults (pathname-as-directory dirname)))
+
+(defun list-directory (dirname)
+  (when (wild-pathname-p dirname)
+    (error "Can only list concrete directory names."))
+  (directory (directory-wildcard dirname)))
