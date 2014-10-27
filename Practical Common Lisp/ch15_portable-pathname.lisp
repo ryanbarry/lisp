@@ -105,3 +105,19 @@
 
   #- (or sbcl lispworks openmcl allegro cmu clisp)
   (error "file-exists-p not implemented"))
+
+;; recursively calls given function on pathnames of all files under given directory
+;; two keyword args:
+;; :directories - when true, will call function on pathnames of directories also
+;; :test - specifies fun invoked prior to main fun, skips main fun if ret false
+(defun walk-directory (dirname fn &key directories (test (constantly t)))
+  (labels
+      ((walk (name)
+	 (cond
+	   ((directory-pathname-p name)
+	    (when (and directories (funcall test name))
+	      (funcall fn name))
+	    (dolist (x (list-directory name)) (walk x)))
+	   ((funcall test name) (funcall fn name)))))
+    (walk (pathname-as-directory dirname))))
+  
