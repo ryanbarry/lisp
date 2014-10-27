@@ -8,12 +8,15 @@
 (defun component-present-p (value)
   (and value (not (eql value :unspecific))))
 
+;; is the given pathname a directory?
+;; returns the pathname if true, nil if false
 (defun directory-pathname-p (p)
   (and
    (not (component-present-p (pathname-name p)))
    (not (component-present-p (pathname-type p)))
    p))
 
+;; converts given pathname to directory form
 (defun pathname-as-directory (name)
   (let ((pathname (pathname name)))
     (when (wild-pathname-p pathname)
@@ -27,6 +30,7 @@
 	 :defaults pathname)
 	pathname)))
 
+;; converts given pathname to file form
 (defun pathname-as-file (name)
   (let ((pathname (pathname name)))
     (when (wild-pathname-p pathname)
@@ -47,6 +51,8 @@
    :type #-clisp :wild #+clisp nil ;clisp needs this to show files w/o extension
    :defaults (pathname-as-directory dirname)))
 
+;; clisp helper to product directory wildcard with nil pathname-type
+;; required since clisp won't match extensionless files when wildcard has non-nil type
 #+clisp
 (defun clisp-subdirectories-wildcard (wildcard)
   (make-pathname
@@ -55,6 +61,8 @@
    :type nil
    :defaults wildcard))
 
+;; lists all files and subdirectories in given directory pathname
+;; subdirectories are listed in directory form for easy differentiation from files
 (defun list-directory (dirname)
   (when (wild-pathname-p dirname)
     (error "Can only list concrete directory names."))
@@ -76,6 +84,9 @@
     #-(or sbcl cmu lispworks openmcl allegro clisp)
     (error "list-subdirectory not implemented")))
 
+;; simple test for whether file or directory represented by pathname exists
+;; returns the pathname if true, nil if false
+;; always returns pathnames representing directories in directory form
 (defun file-exists-p (pathname)
   #+ (or sbcl lispworks openmcl)
   (probe-file pathname)
