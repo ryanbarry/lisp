@@ -33,7 +33,31 @@
    :type #-clisp :wild #+clisp nil ;clisp needs this to show files w/o extension
    :defaults (pathname-as-directory dirname)))
 
+#+clisp
+(defun clisp-subdirectories-wildcard (wildcard)
+  (make-pathname
+   :directory (append (pathname-directory wildcard) (list :wild))
+   :name nil
+   :type nil
+   :defaults wildcard))
+
 (defun list-directory (dirname)
   (when (wild-pathname-p dirname)
     (error "Can only list concrete directory names."))
-  (directory (directory-wildcard dirname)))
+  (let ((wildcard (directory-wildcard dirname)))
+    #+ (or sbcl cmu lispworks)
+    (directory wildcard)
+
+    #+openmcl
+    (directory wildcard :directories t)
+
+    #+allegro
+    (directory wildcard :directories-are-files nil)
+
+    #+clisp
+    (nconc
+     (directory wildcard)
+     (directory (clisp-subdirectories-wildcard wildcard)))
+
+    #-(or sbcl cmu lispworks openmcl allegro clisp)
+    (error "list-subdirectory not implemented")))
